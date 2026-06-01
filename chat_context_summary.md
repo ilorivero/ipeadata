@@ -41,6 +41,16 @@ O objetivo do projeto é construir um aplicativo em **Streamlit** para visualiza
 * Criou-se a aba **"Exemplos Didáticos de Classificação"** contrastando a série do IPCA (`PRECO12_IPCA12` $\rightarrow$ `PRECOS12_IPCA12`) com a da População (`POPU_POPU` $\rightarrow$ `DEPIS_POP`).
 * Implementou-se 4 comparações conceituais com botões alternadores de estado via `st.session_state` e captions explicativas com equações matemáticas em LaTeX.
 
+### Passo 6: Incorporação do Modelo ARIMA
+* **ARIMA(1, 1, 1):** Adicionou-se suporte ao modelo preditivo estatístico clássico `statsmodels.tsa.arima.model.ARIMA`.
+* **Tratamento de Frequência:** Criou-se a função robusta `prever_arima` que detecta/infere a frequência das datas e aplica `asfreq` com `ffill` antes do treinamento para evitar quebras por falhas de frequência em índices de séries mescladas.
+* **Interface Unificada:** O selectbox da barra lateral foi estendido para incluir a opção "ARIMA", permitindo alternar de forma transparente entre os quatro algoritmos e renderizando a legenda dinâmica correspondente no Plotly.
+
+### Passo 7: Incorporação do Modelo SARIMA para Sazonalidade
+* **SARIMA:** Adicionou-se suporte ao modelo sazonal `statsmodels.tsa.statespace.sarimax.SARIMAX` de ordem `(1, 1, 1)`.
+* **Detecção de Sazonalidade Dinâmica:** O modelo `prever_sarima` detecta se a frequência temporal das séries consolidadas é mensal ('M') ou trimestral ('Q') para aplicar `seasonal_order=(1, 1, 1, 12)` ou `seasonal_order=(1, 1, 1, 4)` respectivamente.
+* **Seleção no Dashboard:** O selectbox lateral no front-end foi expandido para ofertar a opção "SARIMA", permitindo comparar graficamente projeções sazonais.
+
 ---
 
 ## 🐛 Erros Resolvidos e Gotchas
@@ -64,7 +74,7 @@ O objetivo do projeto é construir um aplicativo em **Streamlit** para visualiza
 
 1. **[app.py](file:///c:/Users/ilori/ipeaapi/app.py):** Interface gráfica, aba interativa principal e aba educacional. Limpo, modularizado e livre de erros de sintaxe ou warnings.
 2. **[data_fetcher.py](file:///c:/Users/ilori/ipeaapi/data_fetcher.py):** Integração com `ipeadatapy` e tratamento inteligente de falhas de códigos e inatividade.
-3. **[predictor.py](file:///c:/Users/ilori/ipeaapi/predictor.py):** Três modelos preditivos alinhados em datas futuras (Regressão Linear, XGBoost e Prophet).
+3. **[predictor.py](file:///c:/Users/ilori/ipeaapi/predictor.py):** Cinco modelos preditivos alinhados em datas futuras (Regressão Linear, XGBoost, Prophet, ARIMA e SARIMA).
 4. **[stats_analyzer.py](file:///c:/Users/ilori/ipeaapi/stats_analyzer.py):** Ferramentas estatísticas de correlação, covariância, correlação cruzada e interpretador textual.
 5. **[requirements.txt](file:///c:/Users/ilori/ipeaapi/requirements.txt):** Todas as bibliotecas fixadas e instaladas com sucesso no ambiente local.
 6. **[README.md](file:///c:/Users/ilori/ipeaapi/README.md):** Manual completo de instalação, conexões externas, modelos matemáticos e conceitos didáticos.

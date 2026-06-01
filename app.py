@@ -170,7 +170,7 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("### Configurações de Previsão")
 algoritmo_selecionado = st.sidebar.selectbox(
     "Algoritmo de ML",
-    options=["Regressão Linear", "XGBoost", "Prophet"],
+    options=["Regressão Linear", "ARIMA", "SARIMA", "XGBoost", "Prophet"],
     index=0,
     help="Escolha o modelo de Machine Learning a ser utilizado nas projeções."
 )

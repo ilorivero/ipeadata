@@ -6,9 +6,84 @@ import logging
 logging.getLogger('prophet').setLevel(logging.WARNING)
 logging.getLogger('cmdstanpy').setLevel(logging.WARNING)
 
+def prever_arima(series, passos=6):
+    """
+    Realiza a previsão utilizando o modelo ARIMA(1, 1, 1).
+    Garante que a série possui uma frequência definida antes do ajuste.
+    """
+    from statsmodels.tsa.arima.model import ARIMA
+    
+    # Faz uma cópia da série para evitar efeitos colaterais
+    s = series.copy()
+    
+    # Garante que o índice temporal possui frequência definida
+    if s.index.freq is None:
+        freq = pd.infer_freq(s.index)
+        if freq is None:
+            if len(s) > 1:
+                diffs = s.index.to_series().diff().dropna()
+                time_delta = diffs.median()
+                freq = pd.tseries.frequencies.to_offset(time_delta)
+            else:
+                freq = 'D'
+        s = s.asfreq(freq, method='ffill')
+        
+    # Ajusta o modelo ARIMA(1, 1, 1) com configurações robustas
+    model = ARIMA(s, order=(1, 1, 1), enforce_stationarity=False, enforce_invertibility=False)
+    model_fit = model.fit()
+    
+    # Realiza previsão para os passos futuros
+    forecast = model_fit.forecast(steps=passos)
+    return forecast
+
+def prever_sarima(series, passos=6):
+    """
+    Realiza a previsão utilizando o modelo SARIMA.
+    Ajusta a ordem sazonal de acordo com a frequência da série.
+    """
+    from statsmodels.tsa.statespace.sarimax import SARIMAX
+    
+    s = series.copy()
+    
+    # Garante frequência definida no índice
+    if s.index.freq is None:
+        freq = pd.infer_freq(s.index)
+        if freq is None:
+            if len(s) > 1:
+                diffs = s.index.to_series().diff().dropna()
+                time_delta = diffs.median()
+                freq = pd.tseries.frequencies.to_offset(time_delta)
+            else:
+                freq = 'D'
+        s = s.asfreq(freq, method='ffill')
+        
+    freq_str = str(s.index.freqstr or s.index.freq).upper()
+    
+    # Identifica a ordem sazonal (sazonalidade mensal = 12, trimestral = 4)
+    if 'M' in freq_str:
+        seasonal_order = (1, 1, 1, 12)
+    elif 'Q' in freq_str:
+        seasonal_order = (1, 1, 1, 4)
+    else:
+        seasonal_order = (0, 0, 0, 0)
+        
+    # Ajusta o modelo SARIMAX
+    model = SARIMAX(
+        s, 
+        order=(1, 1, 1), 
+        seasonal_order=seasonal_order, 
+        enforce_stationarity=False, 
+        enforce_invertibility=False
+    )
+    model_fit = model.fit(disp=False)
+    
+    # Realiza previsão para os passos futuros
+    forecast = model_fit.forecast(steps=passos)
+    return forecast
+
 def prever_series(df, algoritmo="Regressão Linear", passos=6):
     """
-    Aplica o algoritmo selecionado (Regressão Linear, XGBoost ou Prophet)
+    Aplica o algoritmo selecionado (Regressão Linear, XGBoost, Prophet, ARIMA ou SARIMA)
     para projetar os próximos passos de cada série ativa no DataFrame.
     Retorna um DataFrame com as projeções.
     """
@@ -36,7 +111,13 @@ def prever_series(df, algoritmo="Regressão Linear", passos=6):
         if len(series) < 4:
             raise ValueError(f"Dados insuficientes na série '{col}' para modelagem (mínimo 4 pontos).")
             
-        if algoritmo == "Prophet":
+        if algoritmo == "ARIMA":
+            pred_series = prever_arima(series, passos=passos)
+            projecoes[col] = [float(x) for x in pred_series.values]
+        elif algoritmo == "SARIMA":
+            pred_series = prever_sarima(series, passos=passos)
+            projecoes[col] = [float(x) for x in pred_series.values]
+        elif algoritmo == "Prophet":
             from prophet import Prophet
             
             # Prepara o DataFrame no formato exigido pelo Prophet (ds, y)

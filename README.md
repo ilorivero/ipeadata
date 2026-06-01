@@ -79,6 +79,20 @@ Na aba principal de exploração, o usuário pode selecionar o algoritmo a ser u
   Onde $g(t)$ é a tendência linear ou logística, $s(t)$ representa efeitos sazonais periódicos (anuais/semanais) e $h(t)$ representa feriados.
 * **Integração:** Os dados históricos de data e valor são estruturados no padrão exigido pelo Prophet (colunas `ds` e `y`). A previsão é calculada de forma direta sobre a linha do tempo futura gerada pelo app.
 
+### 4. ARIMA(1, 1, 1) (Autoregressive Integrated Moving Average)
+* **Biblioteca:** `statsmodels` (`statsmodels.tsa.arima.model.ARIMA`).
+* **Abordagem:** É um dos modelos estatísticos lineares clássicos mais consolidados para previsão de séries temporais. O modelo é parametrizado com ordem $(1, 1, 1)$ contemplando:
+  - **AR(1):** Parte autoregressiva, relacionando o valor corrente com seu lag anterior.
+  - **I(1):** Nível de diferenciação para estabilizar a média e tornar a série estacionária.
+  - **MA(1):** Parte de média móvel, relacionando o valor com erros estocásticos de previsões passadas.
+* **Tratamento de Frequência:** O app analisa o índice de datas e garante a definição de uma frequência explícita (`asfreq`), aplicando preenchimento por propagação de valor (`ffill`) caso restem descontinuidades.
+
+### 5. SARIMA (Seasonal Autoregressive Integrated Moving Average)
+* **Biblioteca:** `statsmodels` (`statsmodels.tsa.statespace.sarimax.SARIMAX`).
+* **Abordagem:** Extensão do ARIMA projetada para séries com flutuações sazonais sistemáticas. Adiciona parâmetros sazonais específicos ao modelo:
+  - **Identificação de Frequência Sazonal:** Se o índice for detectado como mensal ('M'), define-se a ordem sazonal como `seasonal_order=(1, 1, 1, 12)`. Se for detectado como trimestral ('Q'), adota-se `seasonal_order=(1, 1, 1, 4)`.
+  - **Vantagem:** Essencial para modelar ciclos de negócios e sazonalidades anuais comuns em indicadores econômicos de inflação e consumo.
+
 ---
 
 ## 📊 Análises Estatísticas Realizadas
