@@ -1,0 +1,8 @@
+streamlit
+ipeadatapy
+pandas
+plotly
+scikit-learn
+statsmodels
+xgboost
+prophet
