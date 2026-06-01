@@ -143,7 +143,7 @@ O aplicativo conta com uma seção dedicada à educação sobre séries temporai
 
 * `app.py`: Arquivo principal da interface do Streamlit, renderização do dashboard, abas e lógica de interação.
 * `data_fetcher.py`: Comunicação com a API `ipeadatapy`, filtragem de séries inativas, alinhamento multissérie (inner join) e fallback de códigos de séries.
-* `predictor.py`: Preparação e execução dos pipelines preditivos (Regressão Linear, XGBoost, Prophet).
+* `predictor.py`: Preparação e execução dos pipelines preditivos (Regressão Linear, XGBoost, Prophet, ARIMA, SARIMA).
 * `stats_analyzer.py`: Lógica para cálculo de correlação, covariância, CCF e geração textual de insights.
 * `requirements.txt`: Lista de dependências Python.
 * `chat_context_summary.md`: Documentação de backup contendo o histórico de desenvolvimento do chat para portabilidade entre computadores.
